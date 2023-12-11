@@ -4,15 +4,28 @@
 
 ## Introduction
 
-The Accessible Learning Platform is a dedicated initiative focused on enhancing inclusivity and accessibility within the realm of online education. Our primary objective is to create an inclusive space for language learners and individuals with visual or auditory impairments. Leveraging cutting-edge technologies, including Natural Language Processing (NLP), FastAPI, and Cassandra, our platform efficiently integrates with YouTube links. It facilitates audio transcription, quiz generation, and delivers interactive learning experiences tailored for the deaf and blind communities. The user-friendly Streamlit frontend enriches user interactions with features such as interactive transcripts, multilingual support, and sentiment analysis. Explore the scalability and reliability of our platform, deployed on Google Compute Engine, as we embark on a journey to empower learners of all abilities and make education truly accessible for everyone.
+The Accessible Learning Platform is a dedicated initiative focused on enhancing inclusivity and accessibility within the realm of online education. Our primary objective is to create an inclusive space for language learners and individuals with visual or auditory impairments. Leveraging cutting-edge technologies, including Natural Language Processing (NLP), FastAPI, and Cassandra, our platform efficiently integrates with YouTube links. It facilitates audio transcription, quiz generation, and delivers interactive learning experiences tailored for the deaf and blind communities. The user-friendly Streamlit frontend enriches user interactions with features such as interactive transcripts, multilingual support, and sentiment analysis.
 
 ## Overview
 
 The goal of this project is to develop a comprehensive platform that enhances accessibility for video content sourced from YouTube. The platform will cater to users with varying needs, including the deaf, blind, and those who prefer content in different languages.
 
+### Freature list:
+#### Audio Transcription and Quiz Generation
+* Transcription of audio from videos to text.
+* Automatic generation of quizzes for enhanced engagement and learning.
+
+#### Accessibility for the Deaf
+* Interactive transcripts for improved understanding.
+* Translation of content into multiple languages, including Hindi.
+
 ## Tech Stack
 
 FastAPI | Cassandra | Streamlit | GCP
+
+## Setup Instructions
+
+## Code Structure
 
 ## Aditional Notes
 
