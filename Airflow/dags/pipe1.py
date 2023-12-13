@@ -8,7 +8,13 @@ import os
 import tempfile
 from pydub import AudioSegment
 from pydub.silence import split_on_silence
+import pandas as pd
+from sqlalchemy import create_engine
+from datetime import datetime
 
+DB_URL = os.getenv("DB_URL", "postgresql://root:root@db:5432/youtube")
+
+# DAG Configuration
 dag = DAG(
     dag_id="playlist1",
     schedule_interval="0 0 * * *",
@@ -17,6 +23,7 @@ dag = DAG(
     dagrun_timeout=timedelta(minutes=60),
     tags=["bigdata", "damg7245"]
 )
+
 
 def transcribe_audio(path):
     r = sr.Recognizer()
@@ -60,11 +67,35 @@ def download_and_transcribe(url):
 
     transcribed_text = get_large_audio_transcription_on_silence(audio_file)
 
-    # Log the transcribed text
-    print(transcribed_text)
 
-    return transcribed_text
+    data = {
+    'url': [url],
+    'transcribed_text': [transcribed_text]
+    }
 
+    current_time = datetime.now()
+    data['timestamp'] = current_time
+
+    df = pd.DataFrame(data)
+
+    engine = create_engine(DB_URL)
+    engine.connect()
+    len(transcribed_text)
+
+    df.to_sql(name='youtube', con=engine, index=False, if_exists='append')
+
+# Retrieve the inserted data from the database
+    query = "SELECT transcribed_text FROM youtube WHERE url = %s AND timestamp = %s"
+    retrieved_data = pd.read_sql_query(query, engine, params=(url, current_time))
+
+    # Assuming that each URL and timestamp combination is unique
+    if not retrieved_data.empty:
+        retrieved_text = retrieved_data['transcribed_text'].iloc[0]    
+        assert len(transcribed_text) == len(retrieved_text)
+    else:
+        print("No data retrieved from the database.")
+    
+    return len(transcribed_text)
 
 # Task to transcribe a single video
 transcribe_task = PythonOperator(
