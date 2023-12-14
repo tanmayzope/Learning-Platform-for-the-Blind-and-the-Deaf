@@ -10,7 +10,7 @@ The Accessible Learning Platform is a dedicated initiative focused on enhancing 
 
 The goal of this project is to develop a comprehensive platform that enhances accessibility for video content sourced from YouTube. The platform will cater to users with varying needs, including the deaf, blind, and those who prefer content in different languages.
 
-### Freature list:
+### Feature list:
 #### Audio Transcription and Quiz Generation
 * Transcription of audio from videos to text.
 * Automatic generation of quizzes for enhanced engagement and learning.
@@ -18,6 +18,9 @@ The goal of this project is to develop a comprehensive platform that enhances ac
 #### Accessibility for the Deaf
 * Interactive transcripts for improved understanding.
 * Translation of content into multiple languages, including Hindi.
+
+### Accessibility for the Blind
+* Conversion of quizzes into audio playlists for seamless consumption.
 
 ## Tech Stack
 
