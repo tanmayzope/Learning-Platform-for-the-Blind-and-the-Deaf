@@ -4,7 +4,7 @@
 #### [YouTube Video](https://youtu.be/34sq0Lbhi_g)
 #### [Colab For Reference](https://colab.research.google.com/drive/1JvWat8ZmTLOXYZqrjZodKTydEN2x0vGg?usp=sharing)
 
-#### Application link : 
+#### [Application link](http://34.148.64.24:8501/)
 
 ## Introduction
 
