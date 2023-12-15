@@ -30,7 +30,24 @@ The goal of this project is to develop a comprehensive platform that enhances ac
 
 FastAPI | PosgreSQL| Airflow | Streamlit | GCP | Docker
 
+## For environment variables
+
+* Create an .env file on the root folder after cloning
+* The format of the env file is:
+```
+AIRFLOW_UID=
+AIRFLOW_PROJ_DIR=
+OPENAI_KEY= API Keys from Open AI
+FASTAPI_ENDPOINT= 
+DATABASE_URL= (pg admin local URL)
+API_TOKEN= (Hugging Face API for translation into hindi Token from - https://huggingface.co/damerajee/hindi-english)
+```
+
 ## Setup Instructions
+
+* Just initiate docker settings and open terminal under this cloned folder
+* Make sure you have the above mentioned .env file ready
+* Run - docker compose up -d --build
 
 ## Application Components
 
@@ -40,7 +57,6 @@ FastAPI | PosgreSQL| Airflow | Streamlit | GCP | Docker
 * Generating quizzes
 * Generating Audio Playlist
 
-## Code Structure
 
 ### Data Sourcing
 YouTube video links serve as the primary data source
