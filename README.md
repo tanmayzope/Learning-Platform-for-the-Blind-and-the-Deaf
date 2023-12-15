@@ -1,13 +1,13 @@
 # Big_Data_Final_Project: AllAccessEd
 
-#### Proposal Codelabs Document - https://codelabs-preview.appspot.com/?file_id=1FdCYFk82QYMPheCuaJK0NwihoGXUnLx4QDOUzCcPWcM#0
-#### YouTube Video - 
+#### [Codelabs Document](https://codelabs-preview.appspot.com/?file_id=1FdCYFk82QYMPheCuaJK0NwihoGXUnLx4QDOUzCcPWcM#0)
+#### [YouTube Video](https://youtu.be/34sq0Lbhi_g)
 
 #### Application link : 
 
 ## Introduction
 
-The Accessible Learning Platform is a dedicated initiative focused on enhancing inclusivity and accessibility within the realm of online education. Our primary objective is to create an inclusive space for language learners and individuals with visual or auditory impairments. Leveraging cutting-edge technologies, including Natural Language Processing (NLP), FastAPI, and PostgreSQL, our platform efficiently integrates with YouTube links. It facilitates audio transcription, quiz generation, and delivers interactive learning experiences tailored for the deaf and blind communities. The user-friendly Streamlit frontend enriches user interactions with features such as interactive transcripts, multilingual support, and sentiment analysis.
+The Accessible Learning Platform is a dedicated initiative focused on enhancing inclusivity and accessibility within the realm of online education. Our primary objective is to create an inclusive space for language learners and individuals with visual or auditory impairments. Leveraging cutting-edge technologies, including Natural Language Processing (NLP), FastAPI, and PostgreSQL, our platform efficiently integrates with YouTube links. It facilitates audio transcription, quiz generation, and delivers interactive learning experiences tailored for the deaf and blind communities.
 
 ## Overview
 
@@ -76,6 +76,6 @@ FAST API endpoints:
 * /questions_audio/{url} and /answers_audio/{url}: Returns audio files for quiz questions and answers, respectively.
 ## Aditional Notes
 
-WE ATTEST THAT WE HAVEN’T USED ANY OTHER STUDENTS’ WORK IN OUR ASSIGNMENT AND ABIDE BY THE POLICIES LISTED IN THE STUDENT HANDBOOK
+WE ATTEST THAT WE HAVEN’T USED ANY OTHER STUDENTS’ WORK IN OUR PROJECT AND ABIDE BY THE POLICIES LISTED IN THE STUDENT HANDBOOK
 
 
