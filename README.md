@@ -24,11 +24,24 @@ The goal of this project is to develop a comprehensive platform that enhances ac
 
 ## Tech Stack
 
-FastAPI | Cassandra | Streamlit | GCP
+FastAPI | PosgreSQL| Airflow | Streamlit | GCP | Docker
 
 ## Setup Instructions
 
+## Application Components
+
+* User Registration & User Login 
+* Choosing from transcribed Videos
+* Summarization
+* Generating quizzes
+* Generating Audio Playlist
+
 ## Code Structure
+
+### Data Sourcing
+### Data Staging
+### Data Processing
+### Data Service
 
 ## Aditional Notes
 
