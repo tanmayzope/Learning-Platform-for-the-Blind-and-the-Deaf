@@ -346,6 +346,8 @@ services:
       - .env
     depends_on:
       - pgdatabase  # Ensure FastAPI waits for PostgreSQL to start
+    # volumes:
+    #   - ./FastAPI/audio:/app/audio
 
   streamlit:
     container_name: streamlit

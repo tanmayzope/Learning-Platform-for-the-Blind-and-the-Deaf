@@ -1,9 +1,16 @@
 # FastAPI Backend Code
-
-from fastapi import FastAPI, HTTPException, FileResponse
+from fastapi import Body
+from fastapi import FastAPI, HTTPException,Depends, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.responses import FileResponse
 from transformers import MBartForConditionalGeneration, MBart50Tokenizer
-import asyncio
-from sqlalchemy import create_engine
+from jose import jwt
+from passlib.context import CryptContext
+from pydantic import BaseModel
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.declarative import declarative_base
 import pandas as pd
 import os
 from dotenv import load_dotenv
@@ -20,30 +27,120 @@ API_TOKEN = os.getenv('API_TOKEN')
 API_URL = "https://api-inference.huggingface.co/models/damerajee/hindi-english"
 headers = {"Authorization": f"Bearer {API_TOKEN}"}
 
-# async def load_model():
-#     global model, tokenizer
-#     model_name = "facebook/mbart-large-50-many-to-many-mmt"
-#     model = MBartForConditionalGeneration.from_pretrained(model_name)
-#     tokenizer = MBart50Tokenizer.from_pretrained(model_name)
+ 
+ 
+DBURL = "sqlite:///./test.db"
 
-# @app.on_event("startup")
-# async def startup_event():
-#     loop = asyncio.get_event_loop()
-#     loop.create_task(load_model())
+Base = declarative_base()
 
-# def translate_to_hindi(text: str):
-#     # Ensure that the model and tokenizer are global
-#     global model, tokenizer
-#     tokenizer.src_lang = "en_XX"  # Set source language to English
-#     encoded_english_text = tokenizer(text, return_tensors="pt")
-#     generated_tokens = model.generate(**encoded_english_text, forced_bos_token_id=tokenizer.lang_code_to_id["hi_IN"])
-#     out = tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)
-#     return out[0]
+engine1 = create_engine(DBURL, connect_args={"check_same_thread": False})
 
-@app.post("/translate/")
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine1)
+ 
+# Dependency
+
+def get_db():
+
+    db = SessionLocal()
+
+    try:
+
+        yield db
+
+    finally:
+
+        db.close()
+ 
+# Security and password context setup
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+ 
+# Your secret key and algorithm
+
+SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"  # Replace with a secure key
+ALGORITHM = "HS256"
+ 
+# SQLAlchemy ORM models
+
+class User(Base):
+
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    username = Column(String, unique=True, index=True)
+
+    hashed_password = Column(String)
+ 
+# Pydantic models for request and response
+
+class UserRegister(BaseModel):
+
+    username: str
+
+    password: str
+ 
+# Create the database tables
+
+Base.metadata.create_all(bind=engine1)
+ 
+# Utility functions
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+ 
+def get_user(db, username: str):
+    return db.query(User).filter(User.username == username).first()
+
+def authenticate_user(db: Session, username: str, password: str):
+    user = get_user(db, username)
+    if not user or not verify_password(password, user.hashed_password):
+        return False
+    return user
+
+def create_access_token(data: dict):
+    encoded_jwt = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+ 
+# Routes
+
+@app.post("/register")
+def register(user: UserRegister, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.username == user.username).first()
+    if db_user:
+        raise HTTPException(status_code=400, detail="Username already registered")
+    hashed_password = pwd_context.hash(user.password)
+    new_user = User(username=user.username, hashed_password=hashed_password)
+    db.add(new_user)
+    try:
+        db.commit()
+        db.refresh(new_user)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Username already registered")
+    access_token = create_access_token(data={"sub": new_user.username})
+    return {"access_token": access_token, "token_type": "bearer"}
+ 
+@app.post("/token")
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = authenticate_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token = create_access_token(data={"sub": user.username})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@app.get("/translate/")
 async def translate(text: str):
     payload = {"inputs": text}
     response = requests.post(API_URL, headers=headers, json=payload)
+    print(response)
     if response.status_code == 200:
         return response.json()
     # else:
@@ -164,50 +261,8 @@ async def get_quizzes(url: str):
     tt = parse_quiz_questions(quiz_text)
     print(f"TT:{tt}")
 
-    # Generate audio files
-    questions_audio_filename = f"questions_{url}.mp3"
-    answers_audio_filename = f"answers_{url}.mp3"
-    speak(get_summarized_question(tt), questions_audio_filename)
-    speak(get_summarized_answers(tt), answers_audio_filename)
-
     # Return quiz data
     return tt
-   
-
-@app.get("/questions_audio/{url}")
-async def get_questions_audio(url: str):
-    return FileResponse(f"questions_{url}.mp3")
-
-@app.get("/answers_audio/{url}")
-async def get_answers_audio(url: str):
-    return FileResponse(f"answers_{url}.mp3")
-
-
-from gtts import gTTS
-import os
-
-
-def speak(text,filename, lang='en'):
-    tts = gTTS(text=text, lang=lang)
-    tts.save(filename)
-    os.system(f"start {filename}")  # This will play the audio file
-
-def get_summarized_question(quiz_data):
-  summarized_question = ""
-  for index, quiz in enumerate(quiz_data):
-    summarized_question += f"Question Number {index + 1}: {quiz['question']}.\n Options are:\n"
-    for option in quiz['options']:
-      summarized_question += f"Option : {option}\n"
-
-  return summarized_question
-
-def get_summarized_answers(quiz_data):
-  summarized_answers = ""
-  for index,answer in enumerate(quiz_data):
-    summarized_answers += f"For Question{index + 1}: the Correct Answer is Option {answer['correct_answer']}.\n and the explanation behind this is {answer['explanation']}"
-
-  return summarized_answers
-
 
 @app.get("/")
 def read_root():

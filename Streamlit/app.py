@@ -1,6 +1,9 @@
 import streamlit as st
 import requests
 import os
+from gtts import gTTS
+import io
+
 
 # Backend API URL
 FASTAPI_ENDPOINT = os.getenv('FASTAPI_ENDPOINT')
@@ -10,6 +13,70 @@ def fetch_data(endpoint, params={}):
     response = requests.get(f"{FASTAPI_ENDPOINT}/{endpoint}", params=params)
     return response.json() if response.status_code == 200 else None
 
+# JWT Authentication Function (from your provided template)
+def jwt_auth():
+    st.title("User Authentication")
+
+    # Register User
+    if st.button("Register a New User"):
+        st.session_state['selected_option'] = "register"
+
+    # Login User
+    if st.button("Log in"):
+        st.session_state['selected_option'] = "login"
+
+    # Display the appropriate form based on the user's choice
+    if st.session_state.get('selected_option') == "register":
+        with st.form("Register Form"):
+            reg_username = st.text_input("Choose a Username")
+            reg_password = st.text_input("Choose a Password", type="password")
+            submit_reg = st.form_submit_button("Register")
+
+            if submit_reg:
+                registration_data = {"username": reg_username, "password": reg_password}
+                try:
+                    response = requests.post(f"{FASTAPI_ENDPOINT}/register", json=registration_data)
+                    if response.status_code == 200:
+                        st.session_state['jwt_token'] = response.json().get('access_token')
+                        st.session_state['logged_in'] = True
+                        st.success("Successfully registered and logged in!")
+                        st.session_state['selected_option'] = None
+                    else:
+                        st.error(response.json().get('detail', "Registration failed. Please try again."))
+                except requests.exceptions.RequestException as e:
+                    st.error(f"An error occurred while connecting to the server: {e}")
+
+    elif st.session_state.get('selected_option') == "login":
+        with st.form("Login Form"):
+            login_username = st.text_input("Username")
+            login_password = st.text_input("Password", type="password")
+            submit_login = st.form_submit_button("Login")
+
+            if submit_login:
+                login_data = {"username": login_username, "password": login_password}
+                try:
+                    response = requests.post(f"{FASTAPI_ENDPOINT}/token", data=login_data)
+                    if response.status_code == 200:
+                        st.session_state['jwt_token'] = response.json().get('access_token')
+                        st.session_state['logged_in'] = True
+                        st.success("Logged in successfully!")
+                        st.session_state['selected_option'] = None
+                    else:
+                        st.error("Incorrect username or password. Please try again.")
+                except requests.exceptions.RequestException as e:
+                    st.error(f"An error occurred while connecting to the server: {e}")
+
+    # Allow user to reset the choice and go back to the main menu
+    if st.session_state.get('selected_option'):
+        if st.button("Back"):
+            st.session_state['selected_option'] = None
+
+    if st.button("Log Out"):
+        st.session_state['logged_in'] = False
+        st.session_state['jwt_token'] = None
+        st.info("You have successfully logged out.")
+
+# Your existing functions for different pages
 def main_page():
     st.title("YouTube Video Viewer")
     data = fetch_data("get_data")
@@ -22,6 +89,11 @@ def main_page():
             if selected_video:
                 st.session_state['selected_video'] = selected_video
                 st.session_state['page'] = 'details'
+
+        if st.button("Log Out"):
+            st.session_state['logged_in'] = False
+            st.session_state['jwt_token'] = None
+            st.info("You have successfully logged out.")
 
 def details_page():
     st.title("Details - " + st.session_state['selected_video']['video_title'])
@@ -63,9 +135,27 @@ def summary_page():
                 st.write(translated_summary)
 
 def translate_text(text):
-    response = requests.post(f"{FASTAPI_ENDPOINT}/translate", json={"text": text})
-    print(response.json())
-    return response.json()["translated_text"] if response.status_code == 200 else "Translation failed."
+    response = requests.get(f"{FASTAPI_ENDPOINT}/translate", json={"text": text})
+    return response.json()
+    
+    #if response.status_code == 200 else print(response.status_code)
+
+
+def get_summarized_question(quiz_data):
+  summarized_question = ""
+  for index, quiz in enumerate(quiz_data):
+    summarized_question += f"Question Number {index + 1}: {quiz['question']}.\n Options are:\n"
+    for option in quiz['options']:
+      summarized_question += f"Option : {option}\n"
+
+  return summarized_question
+
+def get_summarized_answers(quiz_data):
+  summarized_answers = ""
+  for index,answer in enumerate(quiz_data):
+    summarized_answers += f"For Question{index + 1}: the Correct Answer is Option {answer['correct_answer']}.\n and the explanation behind this is {answer['explanation']}"
+
+  return summarized_answers
 
 
 def quizzes_page():
@@ -121,22 +211,37 @@ def quizzes_page():
     else:
         st.error("No quizzes available for this video.")
 
-    st.audio(f"{FASTAPI_ENDPOINT}/questions_audio/{st.session_state['selected_video']['url']}")
-    st.audio(f"{FASTAPI_ENDPOINT}/answers_audio/{st.session_state['selected_video']['url']}")
+    tts = gTTS(text=get_summarized_question(st.session_state['quizzes']), lang='en')
+    tta = gTTS(text=get_summarized_answers(st.session_state['quizzes']), lang='en')
 
+    audio_buffer = io.BytesIO()
+    audio_buffera = io.BytesIO()
+    tts.write_to_fp(audio_buffer)
+    tta.write_to_fp(audio_buffera)
+    audio_buffer.seek(0)
+    audio_buffera.seek(0)
 
-# Initialize session state
+    st.audio(audio_buffer, format='audio/mpeg')
+    st.audio(audio_buffera, format='audio/mpeg')
+
+# Initialize session state for authentication and page navigation
+if 'logged_in' not in st.session_state:
+    st.session_state['logged_in'] = False
+
 if 'page' not in st.session_state:
     st.session_state['page'] = 'main'
 
-# Page routing
-if st.session_state['page'] == 'main':
-    main_page()
-elif st.session_state['page'] == 'details':
-    details_page()
-elif st.session_state['page'] == 'transcribed_text':
-    transcribed_text_page()
-elif st.session_state['page'] == 'summary':
-    summary_page()
-elif st.session_state['page'] == 'quizzes':
-    quizzes_page()
+# Page routing with authentication check
+if not st.session_state['logged_in']:
+    jwt_auth()
+else:
+    if st.session_state['page'] == 'main':
+        main_page()
+    elif st.session_state['page'] == 'details':
+        details_page()
+    elif st.session_state['page'] == 'transcribed_text':
+        transcribed_text_page()
+    elif st.session_state['page'] == 'summary':
+        summary_page()
+    elif st.session_state['page'] == 'quizzes':
+        quizzes_page()
