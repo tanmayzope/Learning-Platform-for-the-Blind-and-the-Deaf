@@ -1,6 +1,7 @@
 # Big_Data_Final_Project: AllAccessEd
 
-#### Proposal Codelabs Document - https://codelabs-preview.appspot.com/?file_id=1Dg6tyGMND58KcDBKducPoTlLRmDjyBnfyud3qU4tORU#2
+#### Proposal Codelabs Document - https://codelabs-preview.appspot.com/?file_id=1FdCYFk82QYMPheCuaJK0NwihoGXUnLx4QDOUzCcPWcM#0
+#### YouTube Video - 
 
 #### Application link : 
 
