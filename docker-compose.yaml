@@ -336,28 +336,29 @@ services:
     depends_on:
       - pgdatabase
 
-  # fastapi:
-  #   container_name: fastapi
-  #   build:
-  #     context: ./FastAPI
-  #   ports:
-  #     - "8504:8504"
-  #   depends_on:
-  #     - airflow-webserver\
-  #   env_file:
-  #     - .env
+  fastapi:
+    container_name: fastapi
+    build:
+      context: ./FastAPI
+    ports:
+      - "8504:8504"
+    env_file:
+      - .env
+    depends_on:
+      - pgdatabase  # Ensure FastAPI waits for PostgreSQL to start
 
-
-  # streamlit:
-  #   container_name: streamlit
-  #   build:
-  #     context: ./Streamlit
-  #   ports:
-  #     - "8501:8501"
-  #   depends_on:
-  #     - fastapi
-  #   environment:
-  #     - FASTAPI_ENDPOINT=http://fastapi:8504
+  streamlit:
+    container_name: streamlit
+    build:
+      context: ./Streamlit
+    ports:
+      - "8501:8501"
+    depends_on:
+      - fastapi
+    env_file:
+      - .env
+    # environment:
+    #   - FASTAPI_ENDPOINT=http://fastapi:8504
 
 
 volumes:
