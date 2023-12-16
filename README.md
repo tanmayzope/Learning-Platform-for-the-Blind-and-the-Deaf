@@ -79,4 +79,8 @@ FAST API endpoints:
 
 WE ATTEST THAT WE HAVEN’T USED ANY OTHER STUDENTS’ WORK IN OUR PROJECT AND ABIDE BY THE POLICIES LISTED IN THE STUDENT HANDBOOK
 
-
+| Name            | Contribution | 
+|-----------------|------------|
+| Soham Deshpande | 45%        | 
+| Tanmay Zope     | 45%        | 
+| Anvi Jain       | 10%        | 
