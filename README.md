@@ -1,4 +1,4 @@
-# Big_Data_Final_Project: AllAccessEd
+# Interactive Video Learning Platform for the Blind and the Deaf: AllAccessEd
 
 #### [Codelabs Document](https://codelabs-preview.appspot.com/?file_id=1FdCYFk82QYMPheCuaJK0NwihoGXUnLx4QDOUzCcPWcM#0)
 #### [YouTube Video](https://youtu.be/34sq0Lbhi_g)
@@ -75,12 +75,7 @@ FAST API endpoints:
 * /get_summary/: Summarizes the transcribed text using OpenAI's GPT-3 summarization model.
 * /get_quizzes/: Generates quiz questions based on the transcribed text and returns them as structured data.
 * /questions_audio/{url} and /answers_audio/{url}: Returns audio files for quiz questions and answers, respectively.
+  
 ## Aditional Notes
 
 WE ATTEST THAT WE HAVEN’T USED ANY OTHER STUDENTS’ WORK IN OUR PROJECT AND ABIDE BY THE POLICIES LISTED IN THE STUDENT HANDBOOK
-
-| Name            | Contribution | 
-|-----------------|------------|
-| Soham Deshpande | 45%        | 
-| Tanmay Zope     | 45%        | 
-| Anvi Jain       | 10%        | 
